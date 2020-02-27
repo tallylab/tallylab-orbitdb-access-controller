@@ -26,7 +26,7 @@ build: lint deps docs test
 	cp dist/* examples
 
 watch: deps
-	nodemon --watch index.js --watch README.md --watch src --watch test \
+	npx nodemon --watch index.js --watch README.md --watch src --watch test \
 		--exec "rm -rf docs && make docs && make lint && make quicktest"
 
 rebuild: clean build

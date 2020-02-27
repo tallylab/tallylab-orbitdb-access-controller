@@ -1,5 +1,3 @@
-const TallyLabIdentityProvider = require('./tallylab-identity-provider')
-
 /**
  * > Manages write access to databases via TL keys. Also, by way of doing _that_, also
  * > guarantees that our db addresses are deterministic.
@@ -93,9 +91,9 @@ class TallyLabAccessController {
   async canAppend (entry, identityProvider) {
     const orbitIdentity = this._orbitdb.identity
     const entryIdentity = entry.identity
-    const verified = await TallyLabIdentityProvider.verifyIdentity(entryIdentity)
+    // const verified = await TallyLabIdentityProvider.verifyIdentity(entryIdentity)
 
-    if (!verified) return false
+    // if (!verified) return false
     if (orbitIdentity.id !== entryIdentity.id) return false
     if (this._options.write.indexOf(orbitIdentity.id) === -1) return false
     if (!(await identityProvider._keystore.hasKey(entryIdentity.id))) return false

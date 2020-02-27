@@ -21,10 +21,7 @@
  */
 
 const AccessControllers = require('orbit-db-access-controllers')
-const Identities = require('orbit-db-identity-provider')
-
 const TallyLabAccessController = require('./src/tallylab-access-controller')
-const TallyLabIdentityProvider = require('./src/tallylab-identity-provider')
 
 /**
  * This module exposes a single function as the entry point for TallyLabIAM. The function
@@ -46,28 +43,23 @@ const TallyLabIdentityProvider = require('./src/tallylab-identity-provider')
  *
  * @param {external:js-nacl} nacl output of `nacl_factory.instantiate`
  *
- * @returns {IAM} See type definitions below
+ * @returns {TallyLabAccess} See type definitions below
  */
-function TallyLabIAM (nacl) {
-  TallyLabIdentityProvider.prototype.nacl = nacl
-
-  Identities.addIdentityProvider(TallyLabIdentityProvider)
+function TallyLabAccess () {
   AccessControllers.addAccessController({ AccessController: TallyLabAccessController })
 
   return {
     TallyLabAccessController,
-    TallyLabIdentityProvider,
-    Identities,
     AccessControllers
   }
 }
 
 /**
- * @typedef {Object} IAM
+ * @typedef {Object} TallyLabAccess
  * @property {TallyLabAccessController} TallyLabAccessController - ACL Creation and Enforcement
  * @property {TallyLabIdentityProvider} TallyLabIdentityProvider - Identity via NACL keypairs
  * @property {external:orbit-db-identity-provider} Identities - Identities helper class from Orbit
  * @property {external:orbit-db-access-controllers} AccessControllers - AccessControllers helper class from Orbit
  */
 
-module.exports = TallyLabIAM
+module.exports = TallyLabAccess

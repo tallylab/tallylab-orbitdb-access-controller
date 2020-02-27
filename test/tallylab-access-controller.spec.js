@@ -4,11 +4,12 @@ const TallyLabIAM = require('../index')
 const OrbitDB = require('orbit-db')
 const IPFS = require('ipfs')
 const rmrf = require('rimraf')
+const TallyLabIdentities = require('tallylab-orbitdb-identity-provider')
 
 const IPFSConfig = { Addresses: { Swarm: [] }, Bootstrap: [] }
 
 describe('Access Controller', function () {
-  let iam, orbitdb, ipfs, identity
+  let iam, orbitdb, ipfs, identity, identities
 
   before(async () => {
     ipfs = await IPFS.create({ preload: { enabled: false }, config: IPFSConfig })
@@ -16,13 +17,14 @@ describe('Access Controller', function () {
     iam = await new Promise((resolve, reject) => {
       naclFactory.instantiate((nacl) => {
         iam = new TallyLabIAM(nacl)
+        identities = new TallyLabIdentities(nacl)
         resolve(iam)
       })
     })
 
     const seed = 'thisisexactlythirtytwocharacters'
-    const tlKeys = iam.TallyLabIdentityProvider.keygen(seed)
-    identity = await iam.Identities.createIdentity({
+    const tlKeys = identities.TallyLabIdentityProvider.keygen(seed)
+    identity = await identities.Identities.createIdentity({
       type: 'TallyLab',
       id: tlKeys.signing.signPk.toString(),
       tlKeys
@@ -104,8 +106,8 @@ describe('Access Controller', function () {
       replicate: false
     })
 
-    const randomKeys = iam.TallyLabIdentityProvider.keygen()
-    const randomIdentity = await iam.Identities.createIdentity({
+    const randomKeys = identities.TallyLabIdentityProvider.keygen()
+    const randomIdentity = await identities.Identities.createIdentity({
       type: 'TallyLab',
       id: randomKeys.signing.signPk.toString(),
       tlKeys: randomKeys,
