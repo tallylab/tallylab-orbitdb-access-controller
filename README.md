@@ -2,6 +2,8 @@
 
 > TallyLab's OrbitDB plugins for Identity and Access Management
 
+![Tests](https://github.com/tallylab/tallylab-orbitdb-access-controller/workflows/Tests/badge.svg?branch=master)
+
 ## Table of Contents
 
 - [Background](#background)
