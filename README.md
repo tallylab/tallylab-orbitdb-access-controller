@@ -1,6 +1,21 @@
-# tallylab-orbitdb-iam
+# TallyLab's OrbitDB Access Controller
 
 > TallyLab's OrbitDB plugins for Identity and Access Management
+
+## Table of Contents
+
+- [Background](#background)
+- [Install](#install)
+- [Usage](#usage)
+- [Background](#background)
+- [Security](#security)
+- [Maintainers](#maintainers)
+- [Contributing](#contributing)
+- [Future Work](#future-work)
+- [License](#license)
+
+
+## Background
 
 Building distributed applications (dapps) without a centralized blockchain presents
 significant difficulties with regard to keypair management: Storage, recovery, etc. Keypair
@@ -29,40 +44,27 @@ This package does **not** contain the aforementioned questions and instead handl
 post-generation of the seed. Mainly, the two primary classes, TallyLabAccessController and
 TallyLabIdentityProvider act as glue between TallyLab and the underlying OrbitDB infrastructure.
 
-## Table of Contents
-
-- [Install](#install)
-- [Usage](#usage)
-- [Background](#background)
-- [Security](#security)
-- [Maintainers](#maintainers)
-- [Contributing](#contributing)
-- [Future Work](#future-work)
-- [License](#license)
-
 ## Install
 
 The primary focus for this package is browser usage. To generate the browser libraries:
 
 ```
-$ git clone https://bitbucket.org/tallylab/tallylab-orbitdb-iam
-$ npm start
+$ git clone https://github.com/tallylab/tallylab-orbitdb-access-controller
+$ make build
 ```
 
 The final files will then be available in the `dist/` folder:
 
-- `tallylab-orbitdb-iam.min.js` (minified)
-- `tallylab-orbitdb-iam.min.js.map` (Source map for development purposes)
+- `tallylab-orbitdb-access-controller.min.js` (minified)
+- `tallylab-orbitdb-access-controller.min.js.map` (Source map for development purposes)
 
 For a simple example, run `npm run example` and open your browser to the specified URL.
 
 ## Usage
 
 This package exposes four items:
-1. TallyLabIdentityProvider
-2. TallyLabAccessProvider
-3. Identities (helper class from OrbitDB not normally exposed)
-4. AccessControllers (ditto the above)
+2. TallyLabAccessController
+4. AccessControllers (helper class from OrbitDB not normally exposed)
 
 It is used in TallyLab similarly to the following:
 
@@ -111,12 +113,14 @@ compromised and should never be used for any users, ever.
 
 ## Contributing
 
+Issues and PRs are welcome!
+
 Development is streamlined through the `make watch` command which will watch files
 and generate documentation, lint, and run automated tests via the `nodemon` module.
 
 ```
 $ git clone https://bitbucket.org/tallylab/tallylab-orbitdb-iam
-$ make build
+$ make watch
 ```
 
 The `Makefile` also provides other useful commands for development such as:
@@ -130,11 +134,8 @@ $ make build      # builds browser files and stores them in /dist
 $ make rebuild    # nukes node_modules and package-lock.json, and re-installs dependencies
 ```
 
-Since this repo is currently closed source, Issues and PRs are only open to contributors.
-
 ## Future Work
 
-- Consider rolling security questions into this module for greater encapsulation?
 - Access granting and revocation to external keys using OrbitDB instead of IPFS
 
 ## License
