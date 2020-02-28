@@ -140,4 +140,5 @@ $ make rebuild    # nukes node_modules and package-lock.json, and re-installs de
 
 ## License
 
-TBD © 2019 TallyLab, LLC
+[MIT](./LICENSE) Copyright © 2019-2020 TallyLab, LLC
+
