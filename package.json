@@ -46,6 +46,6 @@
     "standard": "^14.3.1",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.9",
-    "tallylab-orbitdb-identity-provider": "https://bitbucket.org/tallylab/tallylab-orbitdb-identity-provider"
+    "tallylab-orbitdb-identity-provider": "tallylab/tallylab-orbitdb-identity-provider#master"
   }
 }
