@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://bitbucket.org/tallylab/tallylab-orbitdb-iam.git"
+    "url": "git+https://github.com/tallylab/tallylab-orbitdb-access-controller.git"
   },
   "keywords": [
     "OrbitDB",
@@ -20,8 +20,8 @@
     "nacl"
   ],
   "author": "Mark Henderson and Jordyn Bonds",
-  "license": "UNLICENSED",
-  "homepage": "https://bitbucket.org/tallylab/tallylab-orbitdb-iam#readme",
+  "license": "MIT",
+  "homepage": "https://tallylab.com",
   "dependencies": {
     "libp2p-crypto": "^0.16.2",
     "libp2p-crypto-secp256k1": "^0.4.0",
