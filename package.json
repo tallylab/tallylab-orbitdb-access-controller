@@ -1,5 +1,5 @@
 {
-  "name": "tallylab-orbitdb-iam",
+  "name": "tallylab-orbitdb-access-controller",
   "version": "1.0.0",
   "description": "TallyLab's OrbitDB plugins for Identity and Access Management",
   "main": "index.js",
