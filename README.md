@@ -57,43 +57,102 @@ $ make build
 
 The final files will then be available in the `dist/` folder:
 
-- `tallylab-orbitdb-access-controller.min.js` (minified)
-- `tallylab-orbitdb-access-controller.min.js.map` (Source map for development purposes)
+- `tallylab-orbitdb-access.min.js` (minified)
+- `tallylab-orbitdb-access.min.js.map` (Source map for development purposes)
 
 For a simple example, run `npm run example` and open your browser to the specified URL.
 
 ## Usage
 
-This package exposes four items:
+This package exposes two items:
 2. TallyLabAccessController
 4. AccessControllers (helper class from OrbitDB not normally exposed)
 
-It is used in TallyLab similarly to the following:
+It is used in TallyLab, in the browser, similarly to the following. See it in action
+in the [examples](./examples)
 
 ```JavaScript
-nacl_factory.instantiate(async (nacl) => {
-  const IAM = new TallyLabIAM(nacl)
+// Requires js-nacl, tallylab-orbitdb-identity-provider, and orbit-db-keystore
 
-  const tlKeys = IAM.TallyLabIdentityProvider.keygen('thisisexactlythirtytwocharacters')
+nacl_factory.instantiate(async (nacl) => {
+  // Fire up IPFS vroom vroooom
+  const ipfs = await Ipfs.create()
+
+  const tlIdentities = new TallyLabIdentities()
+  console.log(tlIdentities)
+
+  const keystore = Keystore.create()
+  await keystore.open()
+
+  // Generate keys, either with or without a seed
+  const seed = 'thisisexactlythirtytwocharacters'
+  const tlKeys = tlIdentities.TallyLabIdentityProvider.keygen(nacl, seed)
+  console.log(tlKeys)
+
+  // Pre-sign with the keystore
+  const id = tlKeys.signing.signPk.toString()
+  const key = await keystore.getKey(id) || await keystore.createKey(id)
+
+  // Identities work on the basis of cross-signing the OrbitDB and your provided keys
+  const idSignature = await keystore.sign(key, id)
+  const tlSignature = nacl.crypto_sign(idSignature, tlKeys.signing.signSk)
 
   // Create an identity with the TallyLabIdentityProvider
-  const identity = await IAM.Identities.createIdentity({
-    type: 'TallyLab',
-    id: tlKeys.signing.signPk.toString(),
-    tlKeys
+  const identity = await tlIdentities.Identities.createIdentity({
+    type: 'TallyLab', id, keystore, tlSignature
   })
+  console.log(identity)
 
+  console.log(await tlIdentities.TallyLabIdentityProvider.verifyIdentity(identity))
+
+  const access = new TallyLabAccess()
   const orbitdb = await OrbitDB.createInstance(ipfs, {
-    AccessControllers: IAM.AccessControllers,
+    AccessControllers: access.AccessControllers,
     identity: identity
   })
 
-  const rootDb = await orbitdb.kvstore('root', {
+  const db = await orbitdb.kvstore('root', {
     accessController: {
       type: 'tallylab',
       write: [identity.id]
     }
   })
+
+  // Will always equal /orbitdb/zdpuAv6krzrir1i3b5SD74xtEsVate4SdZrQZTJ3CSfV2ADHg/root
+  console.log(db.id)
+
+  await db.put('foo', 'bar')
+  console.log(db.index)
+
+  // Bad IDs can't write! Bad IDs!!
+  const randomKeys = tlIdentities.TallyLabIdentityProvider.keygen(nacl)
+  const id2 = randomKeys.signing.signPk.toString()
+  const key2 = await keystore.getKey(id) || await keystore.createKey(id)
+  const idSignature2 = await keystore.sign(key, id)
+  const tlSignature2 = nacl.crypto_sign(idSignature, randomKeys.signing.signSk)
+
+  const randomIdentity = await tlIdentities.Identities.createIdentity({
+    type: 'TallyLab',
+    id: id2,
+    tlSignature: tlSignature2,
+    identityKeysPath: './randomkeys'
+  })
+
+  const orbitdb2 = await OrbitDB.createInstance(ipfs, {
+    AccessControllers: access.AccessControllers,
+    identity: randomIdentity,
+    directory: './orbitdb2'
+  })
+  const db2 = await orbitdb2.open(db.address.toString(), {
+    accessController: {
+      type: 'tallylab',
+      write: [identity.id]
+     },
+    replicate: false
+  })
+  
+  // Throws an error
+  await db2.set('foo', 'baz')
 })
 ```
 
