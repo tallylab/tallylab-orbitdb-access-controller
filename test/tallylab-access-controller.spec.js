@@ -1,39 +1,51 @@
 const assert = require('assert')
 const naclFactory = require('js-nacl')
-const TallyLabIAM = require('../index')
+const TallyLabAccess = require('../index')
 const OrbitDB = require('orbit-db')
 const IPFS = require('ipfs')
 const rmrf = require('rimraf')
 const TallyLabIdentities = require('tallylab-orbitdb-identity-provider')
+const Keystore = require('orbit-db-keystore')
 
 const IPFSConfig = { Addresses: { Swarm: [] }, Bootstrap: [] }
 
 describe('Access Controller', function () {
-  let iam, orbitdb, ipfs, identity, identities
+  let orbitdb, ipfs, identity, identities, nacl, access, keystore
 
   before(async () => {
     ipfs = await IPFS.create({ preload: { enabled: false }, config: IPFSConfig })
 
-    iam = await new Promise((resolve, reject) => {
+    nacl = await new Promise((resolve, reject) => {
       naclFactory.instantiate((nacl) => {
-        iam = new TallyLabIAM(nacl)
-        identities = new TallyLabIdentities(nacl)
-        resolve(iam)
+        resolve(nacl)
       })
     })
 
+    keystore = new Keystore()
+    access = new TallyLabAccess()
+    identities = new TallyLabIdentities()
+
     const seed = 'thisisexactlythirtytwocharacters'
-    const tlKeys = identities.TallyLabIdentityProvider.keygen(seed)
+    const tlKeys = identities.TallyLabIdentityProvider.keygen(nacl, seed)
+    const id = tlKeys.signing.signPk.toString()
+    const key = await keystore.getKey(id) || await keystore.createKey(id)
+    const idSignature = await keystore.sign(key, id)
+    const tlSignature = nacl.crypto_sign(idSignature, tlKeys.signing.signSk)
+
     identity = await identities.Identities.createIdentity({
       type: 'TallyLab',
       id: tlKeys.signing.signPk.toString(),
-      tlKeys
+      tlSignature
     })
 
     orbitdb = await OrbitDB.createInstance(ipfs, {
-      AccessControllers: iam.AccessControllers,
+      AccessControllers: access.AccessControllers,
       identity: identity
     })
+  })
+
+  beforeEach(async () => {
+    await keystore.open()
   })
 
   after(async () => {
@@ -47,6 +59,10 @@ describe('Access Controller', function () {
     rmrf('./orbitdb', logError)
     rmrf('./orbitdb2', logError)
     rmrf('./randomkeys', logError)
+  })
+
+  afterEach(async () => {
+    await keystore.close()
   })
 
   it('creates a deterministic OrbitDB address', async () => {
@@ -106,16 +122,21 @@ describe('Access Controller', function () {
       replicate: false
     })
 
-    const randomKeys = identities.TallyLabIdentityProvider.keygen()
+    const randomKeys = identities.TallyLabIdentityProvider.keygen(nacl)
+    const id = randomKeys.signing.signPk.toString()
+    const key = await keystore.getKey(id) || await keystore.createKey(id)
+    const idSignature = await keystore.sign(key, id)
+    const tlSignature = nacl.crypto_sign(idSignature, randomKeys.signing.signSk)
+
     const randomIdentity = await identities.Identities.createIdentity({
       type: 'TallyLab',
       id: randomKeys.signing.signPk.toString(),
-      tlKeys: randomKeys,
+      tlSignature,
       identityKeysPath: './randomkeys'
     })
 
     const orbitdb2 = await OrbitDB.createInstance(ipfs, {
-      AccessControllers: iam.AccessControllers,
+      AccessControllers: access.AccessControllers,
       identity: randomIdentity,
       directory: './orbitdb2'
     })

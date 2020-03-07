@@ -25,7 +25,8 @@
   "dependencies": {
     "libp2p-crypto": "^0.16.2",
     "libp2p-crypto-secp256k1": "^0.4.0",
-    "orbit-db-access-controllers": "^0.2.3"
+    "orbit-db-access-controllers": "^0.2.3",
+    "tallylab-orbitdb-identity-provider": "github:tallylab/tallylab-orbitdb-identity-provider#master"
   },
   "standard": {
     "env": "mocha",
@@ -42,10 +43,10 @@
     "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
     "orbit-db": "^0.22.0",
+    "orbit-db-keystore": "^0.3.4",
     "rimraf": "^3.0.0",
     "standard": "^14.3.1",
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.9",
-    "tallylab-orbitdb-identity-provider": "tallylab/tallylab-orbitdb-identity-provider#master"
+    "webpack-cli": "^3.3.9"
   }
 }
