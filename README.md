@@ -65,8 +65,9 @@ For a simple example, run `npm run example` and open your browser to the specifi
 ## Usage
 
 This package exposes two items:
-2. TallyLabAccessController
-4. AccessControllers (helper class from OrbitDB not normally exposed)
+
+1. TallyLabAccessController
+2. AccessControllers (helper class from OrbitDB not normally exposed)
 
 It is used in TallyLab, in the browser, similarly to the following. See it in action
 in the [examples](./examples)
